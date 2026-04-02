@@ -1,0 +1,26 @@
+services:
+  # 1. El servicio de Base de datos
+  mongodb:
+    image: mongo:8.2.6
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongodb_data:/data/db
+
+  # 2. Nuestra Aplicación [Product Service]
+  products-service:
+    build: .
+    container_name: product-service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://root:password@mongodb:27017/product-db?authSource=admin
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:

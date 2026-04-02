@@ -1,0 +1,28 @@
+flowchart TD
+    User(["👤 Usuario\n(Cliente HTTP)"])
+    GW["🔀 API Gateway\n:9000"]
+
+    User -->|"HTTP :9000"| GW
+
+    GW --> PS
+    GW --> OS
+    GW --> IS
+
+    subgraph Servicios de negocio
+        PS["📦 Product Service"]
+        OS["🛒 Order Service"]
+        IS["🏭 Inventory Service"]
+    end
+
+    PS --> MongoDB[("🍃 MongoDB")]
+    OS --> PostgreSQL[("🐘 PostgreSQL")]
+    IS --> MySQL[("🐬 MySQL")]
+
+    OS -->|"publica evento"| RMQ[["🐇 RabbitMQ"]]
+    RMQ -->|"consume evento"| NS["🔔 Notification Service"]
+
+    subgraph Infraestructura transversal
+        Eureka["🔍 Eureka Server\nService Discovery"]
+        Config["⚙️ Config Server\nConfiguración central"]
+        Keycloak["🔐 Keycloak Auth\nOAuth2 / JWT"]
+    end
