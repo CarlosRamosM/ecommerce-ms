@@ -3,6 +3,7 @@ package com.ecommerce.product_service.service;
 import com.ecommerce.product_service.dm.repository.ProductRepository;
 import com.ecommerce.product_service.dto.ProductRequestDto;
 import com.ecommerce.product_service.dto.ProductResponseDto;
+import com.ecommerce.product_service.exception.ResourceNotFoundException;
 import com.ecommerce.product_service.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -51,11 +52,14 @@ public class ProductService {
                 repository.save(product);
                 return mapper.toResponseDto(product);
             })
-            .orElseGet(() -> new ProductResponseDto(null, null, null, null));
+            .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
     }
 
     public void deleteProduct(final String id) {
         log.info("Deleting product with id: {}", id);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Product", "id", id);
+        }
         repository.deleteById(id);
     }
 }
