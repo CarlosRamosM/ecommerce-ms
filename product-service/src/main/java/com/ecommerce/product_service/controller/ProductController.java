@@ -3,6 +3,7 @@ package com.ecommerce.product_service.controller;
 import com.ecommerce.product_service.dto.ProductRequestDto;
 import com.ecommerce.product_service.dto.ProductResponseDto;
 import com.ecommerce.product_service.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +24,7 @@ public class ProductController {
     }
 
     @PostMapping(path = "/create")
-    public ResponseEntity<ProductResponseDto> createProduct(@RequestBody final ProductRequestDto request) {
+    public ResponseEntity<ProductResponseDto> createProduct(@RequestBody @Valid final ProductRequestDto request) {
         var response = productService.createProduct(request);
         return ResponseEntity.created(null).body(response);
     }
@@ -39,7 +40,7 @@ public class ProductController {
     }
 
     @PutMapping(path = "/{id}")
-    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable final String id, @RequestBody final ProductRequestDto request) {
+    public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable final String id, @RequestBody @Valid final ProductRequestDto request) {
         return ResponseEntity.ok(productService.updateProduct(id, request));
     }
 
@@ -47,5 +48,10 @@ public class ProductController {
     public ResponseEntity<Void> deleteProduct(@PathVariable final String id) {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(path = "/test-fail")
+    public ResponseEntity<String> testFail() {
+        throw new RuntimeException("Test exception");
     }
 }
