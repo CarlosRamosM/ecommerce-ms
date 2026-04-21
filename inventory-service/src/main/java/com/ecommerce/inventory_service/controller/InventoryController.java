@@ -12,8 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping(
     path = "/api/inventory",
-    produces = "application/json",
-    consumes = "application/json"
+    produces = "application/json"
 )
 public class InventoryController {
 
@@ -23,7 +22,7 @@ public class InventoryController {
         this.inventoryService = inventoryService;
     }
 
-    @PostMapping(path = "/create")
+    @PostMapping(path = "/create", consumes = "application/json")
     @ResponseStatus(code = HttpStatus.CREATED)
     public InventoryResponseDto createInventory(@RequestBody @Valid final InventoryRequestDto request) {
         return inventoryService.createInventory(request);
@@ -39,7 +38,7 @@ public class InventoryController {
         return inventoryService.getInventoryBySku(sku);
     }
 
-    @PutMapping(path = "/{sku}")
+    @PutMapping(path = "/{sku}", consumes = "application/json")
     public InventoryResponseDto updateInventory(@PathVariable final String sku, @RequestBody @Valid final InventoryRequestDto request) {
         return inventoryService.updateInventory(sku, request);
     }
@@ -53,5 +52,11 @@ public class InventoryController {
     @GetMapping(path = "/in-stock/{sku}")
     public boolean isInStock(@PathVariable final String sku, @RequestParam final int quantity) {
         return inventoryService.isInStock(sku, quantity);
+    }
+
+    @PatchMapping(path = "/reduce-stock/{sku}")
+    @ResponseStatus(code = HttpStatus.ACCEPTED)
+    public void reduceStock(@PathVariable final String sku, @RequestParam final int quantity) {
+        inventoryService.rediceStock(sku, quantity);
     }
 }

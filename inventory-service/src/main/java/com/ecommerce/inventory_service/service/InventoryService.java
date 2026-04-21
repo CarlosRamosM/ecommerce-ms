@@ -71,4 +71,16 @@ public class InventoryService {
             .map(inventory -> inventory.getQuantity() >= quantity)
             .orElse(false);
     }
+
+    @Transactional
+    public void rediceStock(final String sku, final Integer quantity) {
+        log.info("Reducing stock by sku: {} quantity: {}", sku, quantity);
+        var inventory = repository.findBySku(sku)
+            .orElseThrow(() -> new ResourceNotFoundException("Inventory", "sku", sku));
+        if (inventory.getQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient stock for sku: " + sku);
+        }
+        inventory.setQuantity(inventory.getQuantity() - quantity);
+        repository.save(inventory);
+    }
 }
