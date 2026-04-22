@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/${CONFIG_SERVER_USERNAME}/config-server-data.git
+          username: ${CONFIG_SERVER_USERNAME}
+          password: ${CONFIG_SERVER_PASSWORD}
+          clone-on-start: true
+          default-label: main
+
+server:
+  port: 8888
