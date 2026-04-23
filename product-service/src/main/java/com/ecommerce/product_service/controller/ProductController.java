@@ -3,12 +3,16 @@ package com.ecommerce.product_service.controller;
 import com.ecommerce.product_service.dto.ProductRequestDto;
 import com.ecommerce.product_service.dto.ProductResponseDto;
 import com.ecommerce.product_service.service.ProductService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RefreshScope
 @RestController
 @RequestMapping(
     path = "/api/products",
@@ -18,6 +22,9 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+
+    @Value("${app.maintenance.message: OS}")
+    private String maintenanceMessage;
 
     public ProductController(final ProductService productService) {
         this.productService = productService;
@@ -30,7 +37,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
+    public ResponseEntity<List<ProductResponseDto>> getAllProducts(final HttpServletResponse response) {
+        response.addHeader("X-Maintenance-Message", maintenanceMessage);
         return ResponseEntity.ok(productService.getAllProducts());
     }
 

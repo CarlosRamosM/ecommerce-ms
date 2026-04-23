@@ -57,6 +57,6 @@ public class InventoryController {
     @PatchMapping(path = "/reduce-stock/{sku}")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
     public void reduceStock(@PathVariable final String sku, @RequestParam final int quantity) {
-        inventoryService.rediceStock(sku, quantity);
+        inventoryService.reduceStock(sku, quantity);
     }
 }

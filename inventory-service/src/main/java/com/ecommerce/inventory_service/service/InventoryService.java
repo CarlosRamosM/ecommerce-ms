@@ -6,6 +6,8 @@ import com.ecommerce.inventory_service.dto.response.InventoryResponseDto;
 import com.ecommerce.inventory_service.exception.ResourceNotFoundException;
 import com.ecommerce.inventory_service.mapper.InventoryMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +16,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RefreshScope
 @Transactional
 public class InventoryService {
 
     private final InventoryRepository repository;
 
     private final InventoryMapper mapper;
+
+    @Value( "${inventory.allow-backorders:false}")
+    private boolean allowBackOrders;
 
     public InventoryService(final InventoryRepository repository, final InventoryMapper mapper) {
         this.repository = repository;
@@ -67,13 +73,18 @@ public class InventoryService {
     }
 
     public boolean isInStock(final String sku, final int quantity) {
+        log.info("Checking if sku: {} is in stock: {}", sku, quantity);
+        if (allowBackOrders) {
+            log.warn("Allowing backorders for sku: {}", sku);
+            return true;
+        }
         return repository.findBySku(sku)
             .map(inventory -> inventory.getQuantity() >= quantity)
             .orElse(false);
     }
 
     @Transactional
-    public void rediceStock(final String sku, final Integer quantity) {
+    public void reduceStock(final String sku, final Integer quantity) {
         log.info("Reducing stock by sku: {} quantity: {}", sku, quantity);
         var inventory = repository.findBySku(sku)
             .orElseThrow(() -> new ResourceNotFoundException("Inventory", "sku", sku));
