@@ -8,6 +8,8 @@ import com.ecommerce.order_service.exception.ResourceNotFoundException;
 import com.ecommerce.order_service.integration.inventory.InventoryClient;
 import com.ecommerce.order_service.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@RefreshScope
 @Transactional(readOnly = true)
 public class OrderService {
 
@@ -24,6 +27,9 @@ public class OrderService {
     private final OrderMapper mapper;
 
     private final InventoryClient inventoryClient;
+
+    @Value("${order.enabled:true}")
+    private boolean orderEnabled;
 
     public OrderService(final OrderRepository repository, final OrderMapper mapper, final InventoryClient inventoryClient) {
         this.repository = repository;
@@ -34,6 +40,10 @@ public class OrderService {
     @Transactional
     public OrderResponse placeOrder(final OrderRequest request) {
         log.info("Placing order: {}", request);
+        if (!orderEnabled) {
+            log.warn("Order service is disabled. Order request ignored.");
+            throw new RuntimeException("Order service is disabled. Order request ignored.");
+        }
         var orderLineItems = request.orderLineItems()
             .stream()
             .map(mapper::toOrderLineItem)
