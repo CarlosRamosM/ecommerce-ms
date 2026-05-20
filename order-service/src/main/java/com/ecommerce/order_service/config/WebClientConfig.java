@@ -1,6 +1,7 @@
 package com.ecommerce.order_service.config;
 
 import com.ecommerce.order_service.integration.inventory.InventoryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -11,15 +12,17 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 public class WebClientConfig {
 
     @Bean
-    public WebClient webClientBuilder() {
+    @LoadBalanced
+    public WebClient.Builder webClientBuilder() {
         return WebClient
-            .builder()
-            .baseUrl("http://localhost:8081")
-            .build();
+            .builder();
     }
 
     @Bean
-    public InventoryClient inventoryClient(WebClient webClient) {
+    public InventoryClient inventoryClient(WebClient.Builder builder) {
+        var webClient = builder
+            .baseUrl("http://inventory-service")
+            .build();
         var adapter = WebClientAdapter.create(webClient);
         var factory = HttpServiceProxyFactory
             .builderFor(adapter)
