@@ -9,11 +9,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.ecommerce</groupId>
-    <artifactId>discovery-server</artifactId>
+    <artifactId>api-gateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Discovery Server</name>
-    <description>Service Discovery Server for E-commerce Application</description>
-    <url>https://github.com/carlosramosm/discovery-server</url>
+    <name>API Gateway Service</name>
+    <description>API Gateway service for routing requests to microservices</description>
+    <url/>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -30,10 +30,10 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git://github.com/carlosramosm/discovery-server.git</connection>
-        <developerConnection>scm:git:ssh://github.com:carlosramosm/discovery-server.git</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/carlosramosm/discovery-server</url>
+        <connection/>
+        <developerConnection/>
+        <tag/>
+        <url/>
     </scm>
     <properties>
         <java.version>25</java.version>
@@ -41,14 +41,34 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
 
         <dependency>
@@ -60,10 +80,17 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-actuator-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <dependencyManagement>
         <dependencies>
             <dependency>

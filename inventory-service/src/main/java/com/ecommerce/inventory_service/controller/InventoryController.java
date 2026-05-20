@@ -3,12 +3,15 @@ package com.ecommerce.inventory_service.controller;
 import com.ecommerce.inventory_service.dto.request.InventoryRequestDto;
 import com.ecommerce.inventory_service.dto.response.InventoryResponseDto;
 import com.ecommerce.inventory_service.service.InventoryService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(
     path = "/api/inventory",
@@ -29,7 +32,8 @@ public class InventoryController {
     }
 
     @GetMapping
-    public List<InventoryResponseDto> getAllInventory() {
+    public List<InventoryResponseDto> getAllInventory(HttpServletRequest request) {
+        log.info("Received request in port: {}", request.getServerPort());
         return inventoryService.getAllInventory();
     }
 
