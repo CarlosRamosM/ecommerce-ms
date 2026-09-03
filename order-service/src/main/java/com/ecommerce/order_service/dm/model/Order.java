@@ -29,6 +29,8 @@ public class Order {
 
     private String orderNumber;
 
+    private String userId;
+
     @OneToMany(
         cascade = CascadeType.ALL,
         orphanRemoval = true)

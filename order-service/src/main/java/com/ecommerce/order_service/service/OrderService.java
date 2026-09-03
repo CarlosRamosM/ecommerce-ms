@@ -38,7 +38,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse placeOrder(final OrderRequest request) {
+    public OrderResponse placeOrder(final OrderRequest request, String userId) {
         log.info("Placing order: {}", request);
         if (!orderEnabled) {
             log.warn("Order service is disabled. Order request ignored.");
@@ -62,6 +62,7 @@ public class OrderService {
         var order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
         order.setOrderLineItems(orderLineItems);
+        order.setUserId(userId);
         var orderSaved = repository.save(order);
         return mapper.toOrderResponse(orderSaved);
     }
@@ -87,5 +88,18 @@ public class OrderService {
         var order = repository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Order", "id", id.toString()));
         repository.delete(order);
+    }
+
+    public List<OrderResponse> getOrders(final String userId, boolean isAdmin) {
+        log.info("Getting orders by userId: {}", userId);
+        List<Order> orders;
+        if (isAdmin) {
+            orders = repository.findAll();
+        } else {
+            orders = repository.findByUserId(userId);
+        }
+        return orders.stream()
+            .map(mapper::toOrderResponse)
+            .toList();
     }
 }
