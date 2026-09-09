@@ -7,6 +7,8 @@ import com.ecommerce.order_service.dto.response.OrderResponse;
 import com.ecommerce.order_service.exception.ResourceNotFoundException;
 import com.ecommerce.order_service.integration.inventory.InventoryClient;
 import com.ecommerce.order_service.mapper.OrderMapper;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -38,6 +40,8 @@ public class OrderService {
     }
 
     @Transactional
+    @CircuitBreaker(name = "inventory", fallbackMethod = "fallbackPlaceOrder")
+    @Retry(name = "inventory")
     public OrderResponse placeOrder(final OrderRequest request, String userId) {
         log.info("Placing order: {}", request);
         if (!orderEnabled) {
@@ -101,5 +105,11 @@ public class OrderService {
         return orders.stream()
             .map(mapper::toOrderResponse)
             .toList();
+    }
+
+    public OrderResponse fallbackPlaceOrder(final OrderRequest request, String userId, Throwable throwable) {
+        log.error("Circuit Breaker activate. Casa: No se pudo procesar el pedido");
+        log.error("Fallback Order Place Request Error", throwable);
+        throw new RuntimeException("Fallback Order Place Request Error.");
     }
 }
