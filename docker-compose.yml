@@ -1,9 +1,28 @@
+name: dev-talles-containers
 services:
-  # 1. El servicio de Base de datos
+  rabbitmq:
+    image: rabbitmq:4.3.0-management-alpine
+    container_name: rabbitmq
+    hostname: my-devtalles-rabbitmq
+    restart: on-failure:3
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
   mongodb:
-    image: mongo:8.2.6
+    image: mongo:9.0.2
     container_name: mongodb
-    restart: always
+    restart: on-failure:3
     ports:
       - "27017:27017"
     environment:
@@ -13,9 +32,9 @@ services:
       - mongodb_data:/data/db
 
   inventory-db:
-    image: mysql:8.4.8
+    image: mysql:9.0.1
     container_name: inventory-db
-    restart: always
+    restart: on-failure:3
     ports:
       - "3306:3306"
     environment:
@@ -27,9 +46,9 @@ services:
       - inventory_data:/var/lib/mysql
 
   order-db:
-    image: postgres:18.0-alpine
+    image: postgres:18.6-alpine
     container_name: order-db
-    restart: always
+    restart: on-failure:3
     ports:
       - "5432:5432"
     environment:
@@ -37,12 +56,12 @@ services:
       - POSTGRES_PASSWORD=admin
       - POSTGRES_DB=order-db
     volumes:
-      - order_data:/var/lib/postgresql/data
+      - order_data:/var/lib/postgresql
 
   keycloak-db:
-    image: postgres:18.0-alpine
+    image: postgres:18.6-alpine
     container_name: keycloak-db
-    restart: always
+    restart: on-failure:3
     ports:
       - "5433:5432"
     environment:
@@ -50,10 +69,10 @@ services:
       - POSTGRES_PASSWORD=keycloak
       - POSTGRES_DB=keycloak-db
     volumes:
-      - keycloak_data:/var/lib/postgresql/data
+      - keycloak_data:/var/lib/postgresql
 
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.1
+    image: quay.io/keycloak/keycloak:26.8
     container_name: keycloak
     command: start-dev
     environment:
@@ -81,6 +100,7 @@ services:
 #      - mongodb
 
 volumes:
+  rabbitmq_data:
   mongodb_data:
   inventory_data:
   order_data:
